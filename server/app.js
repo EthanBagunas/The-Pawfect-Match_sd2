@@ -2,30 +2,82 @@ var con = require('./connection');
 var express  = require('express');
 var app = express();
 const path = require ('path')
-
 var bodyParser = require('body-parser');
+const cors =require('cors')
 /*
 var multer =require("multer");
 const storage = multer.memoryStorage(); 
 const upload =multer({ storage:multer.memoryStorage()});
 */
+app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
-
 app.use(bodyParser.urlencoded({ extended:true }));
-
-
 
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.get('/hello', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/hello.html'));
+
+app.get('/landing', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/HomePage/landing.html'));
 });
-  app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+app.get('/surrender', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/surrender/index.html'));
+});
+app.get('/loginPage', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/user/Signup.html'));
+});
 
+
+
+app.post('/register', function (req, res) {
+  const username = req.body.username;
+  const email = req.body.email;
+  const plainPassword = req.body.password;
+  const account = req.body.account;
+
+  // Hash the password using bcrypt
+ /* bcrypt.hash(plainPassword, saltRounds, function (err, hashedPassword) {
+      
+  });*/
+      con.connect(function (error) {
+          if (error) throw error;
+          const sql = "INSERT INTO users (username, email, password, account) VALUES (?, ?, ?, ?)";
+          con.query(sql, [username, email, plainPassword, account], function (error, result) {
+              if (error) throw error;
+              console.log("User inserted")
+          });
+      });
+});
+app.post('/login', function (req, res) {
+  const enteredUsername = req.body.username;
+  const enteredPassword = req.body.password;
+  const sql = "SELECT password FROM users WHERE username = ? LIMIT 1";
+
+  con.query(sql, [enteredUsername], function (error, result) {
+      if (error) throw error;
+
+      if (result.length === 1) {
+          const hashedPassword = result[0].password;
+
+          /*bcrypt.compare(enteredPassword, hashedPassword, function (err, isMatch) {
+              if (err) throw err;
+            });*/
+
+              if (isMatch) {
+                  // Passwords match, user is authenticated
+                  // Proceed with login logic, for example, you can redirect the user to a dashboard page
+                  res.send('<script>alert("Login successful! Redirecting to dashboard..."); window.location.href = "http://localhost:5500/HomePage/homein.html";</script>'); 
+              } else {
+                  // Passwords don't match, show an error or redirect back to login page
+                  res.send('<script>alert("Invalid username or password"); window.location.href = "http://localhost:3000/";</script>');
+              }
+          
+      } else {
+          // User not found, show an error or redirect back to login page
+          res.send('<script>alert("User not found"); window.location.href = "http://localhost:3000/";</script>');
+      }
   });
-
-
+});
 
 app.post('/insert', (req, res) =>{
     
@@ -52,7 +104,7 @@ app.post('/insert', (req, res) =>{
         });
     });
     
-   
+
 });
 
 const port = 7000;
