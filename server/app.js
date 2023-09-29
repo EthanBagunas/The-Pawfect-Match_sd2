@@ -3,7 +3,7 @@ var express  = require('express');
 var app = express();
 const path = require ('path')
 var bodyParser = require('body-parser');
-const cors =require('cors')
+const cors = require('cors')
 /*
 var multer =require("multer");
 const storage = multer.memoryStorage(); 
@@ -23,10 +23,27 @@ app.get('/landing', (req, res) => {
 app.get('/surrender', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/surrender/index.html'));
 });
-app.get('/loginPage', (req, res) => {
+app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/user/Signup.html'));
 });
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
 
+  // Perform authentication logic by querying the database
+  con.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (error, results) => {
+    if (error) {
+      return res.send('Database error');
+    }
+
+    // Check if any rows were returned (authentication successful)
+    if (results.length > 0) {
+      res.send('Login successful!');
+    } else {
+      res.send('Login failed. Please check your credentials.');
+    }
+  });
+});
 
 
 app.post('/register', function (req, res) {
@@ -48,36 +65,9 @@ app.post('/register', function (req, res) {
           });
       });
 });
-app.post('/login', function (req, res) {
-  const enteredUsername = req.body.username;
-  const enteredPassword = req.body.password;
-  const sql = "SELECT password FROM users WHERE username = ? LIMIT 1";
 
-  con.query(sql, [enteredUsername], function (error, result) {
-      if (error) throw error;
 
-      if (result.length === 1) {
-          const hashedPassword = result[0].password;
 
-          /*bcrypt.compare(enteredPassword, hashedPassword, function (err, isMatch) {
-              if (err) throw err;
-            });*/
-
-              if (isMatch) {
-                  // Passwords match, user is authenticated
-                  // Proceed with login logic, for example, you can redirect the user to a dashboard page
-                  res.send('<script>alert("Login successful! Redirecting to dashboard..."); window.location.href = "http://localhost:5500/HomePage/homein.html";</script>'); 
-              } else {
-                  // Passwords don't match, show an error or redirect back to login page
-                  res.send('<script>alert("Invalid username or password"); window.location.href = "http://localhost:3000/";</script>');
-              }
-          
-      } else {
-          // User not found, show an error or redirect back to login page
-          res.send('<script>alert("User not found"); window.location.href = "http://localhost:3000/";</script>');
-      }
-  });
-});
 
 app.post('/insert', (req, res) =>{
     
@@ -112,3 +102,31 @@ const port = 7000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+/*
+app.post('/login', function (req, res) {
+  const enteredUsername = req.body.username;
+  const enteredPassword = req.body.password;
+  const sql = "SELECT password FROM users WHERE username = ? LIMIT 1";
+
+  con.query(sql, [enteredUsername], function (error, result) {
+      if (error) throw error;
+
+      if (result.length === 1) {
+         
+
+              if (enteredPassword) {
+                  // Passwords match, user is authenticated
+                  // Proceed with login logic, for example, you can redirect the user to a dashboard page
+                  res.send('<script>alert("Login successful! Redirecting to dashboard..."); </script>'); 
+              } else {
+                  // Passwords don't match, show an error or redirect back to login page
+                  res.send('<script>alert("Invalid username or password")');
+              }
+          
+      } else {
+          // User not found, show an error or redirect back to login page
+          res.send('<script>alert("User not found");');
+      }
+  });
+});*/

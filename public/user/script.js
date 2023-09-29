@@ -32,6 +32,9 @@ document.addEventListener("DOMContentLoaded", function () {
     showLoginForm();
 });
 
+
+
+
 document.getElementById('Uregister').addEventListener('submit', handleSubmit);
 // Function to handle form submission
 function handleSubmit(event) {
