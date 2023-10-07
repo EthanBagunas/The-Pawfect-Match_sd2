@@ -6,3 +6,8 @@ menu.addEventListener('click', function(){
     menuLinks.classList.toggle('active');
 });
 
+const logoutBtn= document.querySelector(".logout-btn")
+logoutBtn.addEventListener("click",()=>{
+    window.location.replace("http://localhost:7000/homepage/")
+})
+
